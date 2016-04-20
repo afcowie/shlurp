@@ -1,0 +1,2 @@
+module Shlurp.Nothing where
+
