@@ -1,6 +1,6 @@
 module Main where
 
-import Shlurp.Nothing
+import Shlurp.Nothing ()
 
 main :: IO ()
 main = do
