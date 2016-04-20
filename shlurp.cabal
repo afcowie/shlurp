@@ -17,7 +17,8 @@ library
 
   build-depends:     base,
                      containers,
-                     text
+                     text,
+                     github
 
   hs-source-dirs:    lib
 
