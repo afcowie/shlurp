@@ -4,7 +4,7 @@ module Main where
 
 import Test.Hspec
 
-import Shlurp.Nothing
+import Shlurp.Config
 
 main :: IO ()
 main = hspec suite
