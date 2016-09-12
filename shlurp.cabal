@@ -17,11 +17,14 @@ library
 
   build-depends:     base,
                      containers,
-                     text
+                     mtl,
+                     bytestring,
+                     text,
+                     github
 
   hs-source-dirs:    lib
 
-  exposed-modules:   Shlurp.Nothing
+  exposed-modules:   Shlurp.Config
 
   ghc-options:       -O2
                      -threaded
@@ -38,6 +41,7 @@ executable           shlurp
   build-depends:     base,
                      bytestring,
                      containers,
+                     text,
                      shlurp
 
   hs-source-dirs:    src
