@@ -17,6 +17,8 @@ library
 
   build-depends:     base,
                      containers,
+                     mtl,
+                     bytestring,
                      text,
                      github
 
@@ -39,6 +41,7 @@ executable           shlurp
   build-depends:     base,
                      bytestring,
                      containers,
+                     text,
                      shlurp
 
   hs-source-dirs:    src
