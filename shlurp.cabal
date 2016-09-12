@@ -20,11 +20,13 @@ library
                      mtl,
                      bytestring,
                      text,
+                     vector,
                      github
 
   hs-source-dirs:    lib
 
   exposed-modules:   Shlurp.Config
+                     Shlurp.Operations
 
   ghc-options:       -O2
                      -threaded
@@ -42,6 +44,8 @@ executable           shlurp
                      bytestring,
                      containers,
                      text,
+                     vector,
+                     github,
                      shlurp
 
   hs-source-dirs:    src
