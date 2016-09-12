@@ -1,7 +1,14 @@
 module Main where
 
-import Shlurp.Nothing
+import qualified Data.Text as T
+import System.Environment
+
+import Shlurp.Config
 
 main :: IO ()
 main = do
-    putStrLn "Hello World\n"
+    [owner,repo] <- getArgs
+    config <- loadSettings (T.pack owner) (T.pack repo)
+    print owner
+    print repo
+    print config

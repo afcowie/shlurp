@@ -16,7 +16,9 @@ main = do
     config <- loadSettings "afcowie" "tablinator"
 
     issues <- executeGitHub config listIssues
+    labels <- executeGitHub config listLabels
 
 
     mapM_ (print . issueTitle) issues
-    mapM_ (print . V.map labelName . issueLabels) issues
+--  mapM_ (print . V.map labelName . issueLabels) issues
+    mapM_ (print . labelName) labels
