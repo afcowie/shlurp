@@ -12,6 +12,8 @@ where
 import Control.Monad.State
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as S
+import Data.Text (Text)
+import qualified Data.Text as T
 import GitHub.Data
 import GitHub.Request
 import System.Environment
@@ -20,10 +22,10 @@ data Config = Config {
     configToken :: Auth,
     configOwner :: Name Owner,
     configRepo  :: Name Repo
-}
+} deriving Show
 
 
-loadSettings :: Name Owner -> Name Repo -> IO Config
+loadSettings :: Text -> Text -> IO Config
 loadSettings owner repo = do
     possibletoken <- lookupEnv "GITHUB_TOKEN"
     let token = case possibletoken of
@@ -31,8 +33,8 @@ loadSettings owner repo = do
                     Nothing -> error "Need to set GITHUB_TOKEN with a valid GitHub personal access token"
     return $ Config {
         configToken = OAuth token,
-        configOwner = owner,
-        configRepo = repo
+        configOwner = mkOwnerName owner,
+        configRepo = mkRepoName repo
     }
 
 
