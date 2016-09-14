@@ -45,11 +45,13 @@ renderLabels :: Issue -> Doc
 renderLabels = list . fmap renderLabel . V.toList . issueLabels
 
 renderBody :: Issue -> Doc
-renderBody = fillSep
-    . fmap (text . T.unpack)
-    . T.words
+renderBody = vcat
+    . fmap wrapParagraphs
+    . T.lines
     . fromMaybe "~" . issueBody
 
+wrapParagraphs :: Text -> Doc
+wrapParagraphs = fillSep . fmap (text . T.unpack) . T.words
 
 renderTitle :: Issue -> Doc
 renderTitle issue =
