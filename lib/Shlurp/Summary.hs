@@ -42,7 +42,9 @@ renderLabel :: Label -> Doc
 renderLabel = text . T.unpack . labelName
 
 renderLabels :: Issue -> Doc
-renderLabels = list . fmap renderLabel . V.toList . issueLabels
+renderLabels = brackets . fillSep . punctuate comma
+    . fmap renderLabel
+    . V.toList . issueLabels
 
 renderBody :: Issue -> Doc
 renderBody = vcat
