@@ -18,7 +18,8 @@ import Text.PrettyPrint.ANSI.Leijen
 import Shlurp.Operations (Label)
 
 display :: Vector Issue -> IO ()
-display = displayIO stdout . renderPretty 1.0 78
+display = displayIO stdout
+    . renderPretty 1.0 78
     . vsep . fmap renderIssue . V.toList
 
 renderIssue :: Issue -> Doc
@@ -28,7 +29,14 @@ renderIssue issue =
     labels = renderLabels issue
     description = renderBody issue
   in
-    title <$> labels <$> description
+    vcat
+        [ title
+        , empty
+        , labels
+        , empty
+        , description
+        , linebreak
+        ]
 
 renderLabel :: Label -> Doc
 renderLabel = text . T.unpack . labelName
@@ -50,4 +58,4 @@ renderTitle issue =
     underline = T.unpack (T.map (\c -> '-') title)
     heading = T.unpack title
   in
-    text heading <> linebreak <> text underline <> linebreak
+    text heading <> linebreak <> text underline
