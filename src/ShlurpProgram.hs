@@ -12,6 +12,7 @@ import System.Environment
 
 import Shlurp.Config
 import Shlurp.Operations
+import Shlurp.Summary
 
 main :: IO ()
 main = do
@@ -20,15 +21,5 @@ main = do
 
     issues <- executeGitHub config listIssues
 
-    mapM_ (T.putStrLn . display) issues
-
-display :: Issue -> Text
-display issue =
-  let
-    title = issueTitle issue
-    labels = T.intercalate ", " (V.toList (fmap labelName (issueLabels issue)))
-    description = fromMaybe "~" (issueBody issue)
-  in
-    T.concat [title, "\n", labels, "\n\n", description]
-
+    display issues
 
