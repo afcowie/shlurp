@@ -12,12 +12,14 @@ import Data.Vector (Vector)
 import qualified Data.Vector as V
 import GitHub.Endpoints.Issues (Issue, issueLabels, issueTitle, issueBody)
 import GitHub.Endpoints.Issues.Labels (labelName)
+import System.IO (stdout)
 import Text.PrettyPrint.ANSI.Leijen
 
 import Shlurp.Operations (Label)
 
 display :: Vector Issue -> IO ()
-display = putDoc . vsep . fmap renderIssue . V.toList
+display = displayIO stdout . renderPretty 1.0 78
+    . vsep . fmap renderIssue . V.toList
 
 renderIssue :: Issue -> Doc
 renderIssue issue =
@@ -35,7 +37,10 @@ renderLabels :: Issue -> Doc
 renderLabels = list . fmap renderLabel . V.toList . issueLabels
 
 renderBody :: Issue -> Doc
-renderBody = string . T.unpack . fromMaybe "~" . issueBody
+renderBody = fillSep
+    . fmap (text . T.unpack)
+    . T.words
+    . fromMaybe "~" . issueBody
 
 
 renderTitle :: Issue -> Doc
