@@ -39,4 +39,10 @@ renderBody = string . T.unpack . fromMaybe "~" . issueBody
 
 
 renderTitle :: Issue -> Doc
-renderTitle = text . T.unpack . issueTitle
+renderTitle issue =
+  let
+    title = issueTitle issue
+    underline = T.unpack (T.map (\c -> '-') title)
+    heading = T.unpack title
+  in
+    text heading <> linebreak <> text underline <> linebreak
