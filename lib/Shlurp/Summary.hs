@@ -11,7 +11,6 @@ import Prelude hiding ((<$>))
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
---import Data.Vector (Vector)
 import qualified Data.Vector as V
 import GitHub.Endpoints.Issues (Issue, issueLabels, issueTitle, issueBody)
 import GitHub.Endpoints.Issues (Milestone, milestoneTitle, milestoneDescription)
@@ -67,7 +66,8 @@ renderLabel :: Label -> Doc
 renderLabel = text . T.unpack . labelName
 
 renderLabels :: Issue -> Doc
-renderLabels = brackets . fillSep . punctuate comma
+renderLabels = enclose (string "_(") (string ")_")
+    . fillSep . punctuate comma
     . fmap renderLabel
     . V.toList . issueLabels
 
