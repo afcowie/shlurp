@@ -21,5 +21,5 @@ main = do
 
     issues <- executeGitHub config listIssues
 
-    display issues
+    outputIssues (V.toList issues)
 

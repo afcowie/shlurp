@@ -1,6 +1,6 @@
 cabal-version:       >= 1.10
 name:                shlurp
-version:             0.1.2
+version:             0.1.4
 synopsis:            Gather issue history from source control for archiving
 license:             BSD3
 license-file:        LICENCE
@@ -28,6 +28,7 @@ library
 
   exposed-modules:   Shlurp.Config
                      Shlurp.Operations
+                     Shlurp.Summary
 
   ghc-options:       -O2
                      -threaded

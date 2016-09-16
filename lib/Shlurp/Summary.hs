@@ -1,6 +1,9 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Shlurp.Summary
 (
-    display
+    outputMilestone,
+    outputIssues
 )
 where
 
@@ -8,26 +11,48 @@ import Prelude hiding ((<$>))
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Data.Vector (Vector)
+--import Data.Vector (Vector)
 import qualified Data.Vector as V
 import GitHub.Endpoints.Issues (Issue, issueLabels, issueTitle, issueBody)
+import GitHub.Endpoints.Issues (Milestone, milestoneTitle, milestoneDescription)
 import GitHub.Endpoints.Issues.Labels (labelName)
 import System.IO (stdout)
 import Text.PrettyPrint.ANSI.Leijen
 
 import Shlurp.Operations (Label)
 
-display :: Vector Issue -> IO ()
-display = displayIO stdout
+outputMilestone :: Milestone -> IO ()
+outputMilestone = displayIO stdout
     . renderPretty 1.0 78
-    . vsep . fmap renderIssue . V.toList
+    . renderMilestone
+
+
+outputIssues :: [Issue] -> IO ()
+outputIssues = displayIO stdout
+    . renderPretty 1.0 78
+    . vsep . fmap renderIssue
+
+
+renderMilestone :: Milestone -> Doc
+renderMilestone milestone =
+  let
+    title = renderTitle '=' (milestoneTitle milestone)
+    description = renderBody (milestoneDescription milestone)
+  in
+    vcat
+        [ title
+        , empty
+        , description
+        , linebreak
+        ]
+
 
 renderIssue :: Issue -> Doc
 renderIssue issue =
   let
-    title = renderTitle issue
+    title = renderTitle '-' (issueTitle issue)
     labels = renderLabels issue
-    description = renderBody issue
+    description = renderBody (issueBody issue)
   in
     vcat
         [ title
@@ -46,20 +71,20 @@ renderLabels = brackets . fillSep . punctuate comma
     . fmap renderLabel
     . V.toList . issueLabels
 
-renderBody :: Issue -> Doc
+renderBody :: Maybe Text -> Doc
 renderBody = vcat
     . fmap wrapParagraphs
     . T.lines
-    . fromMaybe "~" . issueBody
+    . fromMaybe "~"
 
 wrapParagraphs :: Text -> Doc
 wrapParagraphs = fillSep . fmap (text . T.unpack) . T.words
 
-renderTitle :: Issue -> Doc
-renderTitle issue =
+renderTitle :: Char -> Text -> Doc
+renderTitle level title =
   let
-    title = issueTitle issue
-    underline = T.unpack (T.map (\c -> '-') title)
+    underline = T.unpack (T.map (\_ -> level) title)
     heading = T.unpack title
   in
     text heading <> linebreak <> text underline
+
