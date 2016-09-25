@@ -3,88 +3,117 @@
 module Shlurp.Summary
 (
     outputMilestone,
-    outputIssues
+    outputIssues,
+    wrapParagraph
 )
 where
 
 import Prelude hiding ((<$>))
+import Data.List (foldl', intersperse)
 import Data.Maybe (fromMaybe)
+import Data.Monoid ((<>))
 import Data.Text (Text)
 import qualified Data.Text as T
+import qualified Data.Text.Lazy as L
+import qualified Data.Text.Lazy.IO as L
+import Data.Text.Lazy.Builder
 import qualified Data.Vector as V
 import GitHub.Endpoints.Issues (Issue, issueLabels, issueTitle, issueBody)
 import GitHub.Endpoints.Issues (Milestone, milestoneTitle, milestoneDescription)
 import GitHub.Endpoints.Issues.Labels (labelName)
 import System.IO (stdout)
-import Text.PrettyPrint.ANSI.Leijen
 
 import Shlurp.Operations (Label)
 
+__WIDTH__ :: Int
+__WIDTH__ = 78
+
 outputMilestone :: Milestone -> IO ()
-outputMilestone = displayIO stdout
-    . renderPretty 1.0 78
-    . renderMilestone
+outputMilestone = L.putStr . toLazyText . renderMilestone
 
 
 outputIssues :: [Issue] -> IO ()
-outputIssues = displayIO stdout
-    . renderPretty 1.0 78
-    . vsep . fmap renderIssue
+outputIssues = L.putStr . toLazyText . concatVertical . fmap renderIssue
 
 
-renderMilestone :: Milestone -> Doc
+renderMilestone :: Milestone -> Builder
 renderMilestone milestone =
   let
     title = renderTitle '=' (milestoneTitle milestone)
     description = renderBody (milestoneDescription milestone)
   in
-    vcat
+    concatVertical
         [ title
-        , empty
+        , ""
         , description
-        , linebreak
+        , ""
         ]
 
 
-renderIssue :: Issue -> Doc
+renderIssue :: Issue -> Builder
 renderIssue issue =
   let
     title = renderTitle '-' (issueTitle issue)
     labels = renderLabels issue
     description = renderBody (issueBody issue)
   in
-    vcat
+    concatVertical
         [ title
-        , empty
+        , ""
         , labels
-        , empty
+        , ""
         , description
-        , linebreak
+        , ""
         ]
 
-renderLabel :: Label -> Doc
-renderLabel = text . T.unpack . labelName
+renderLabel :: Label -> Builder
+renderLabel = fromText . labelName
 
-renderLabels :: Issue -> Doc
-renderLabels = enclose (string "_(") (string ")_")
-    . fillSep . punctuate comma
+renderLabels :: Issue -> Builder
+renderLabels = enclose "_(" ")_" ","
     . fmap renderLabel
     . V.toList . issueLabels
 
-renderBody :: Maybe Text -> Doc
-renderBody = vcat
-    . fmap wrapParagraphs
+enclose :: Builder -> Builder -> Builder -> [Builder] -> Builder
+enclose before after between list =
+  let
+    middles = intersperse between list
+  in
+    before <> foldr (<>) after middles
+
+renderBody :: Maybe Text -> Builder
+renderBody = concatVertical
+    . fmap wrapParagraph
     . T.lines
     . fromMaybe "~"
 
-wrapParagraphs :: Text -> Doc
-wrapParagraphs = fillSep . fmap (text . T.unpack) . T.words
+concatVertical :: [Builder] -> Builder
+concatVertical = foldr (<>) "" . intersperse "\n"
 
-renderTitle :: Char -> Text -> Doc
+
+wrapParagraph :: Text -> Builder
+wrapParagraph = wrapHelper . T.words
+
+wrapHelper :: [Text] -> Builder
+wrapHelper [] = ""
+wrapHelper [x]  = fromText x
+wrapHelper (x:xs) = snd $ foldl' wrapLine (T.length x, fromText x) xs
+
+wrapLine :: (Int, Builder) -> Text -> (Int, Builder)
+wrapLine (pos,builder) word =
+  let
+    width = T.length word
+    width' = pos + width + 1
+  in
+    if width' > __WIDTH__
+        then (width , builder <> "\n" <> fromText word)
+        else (width', builder <> " "  <> fromText word)
+
+renderTitle :: Char -> Text -> Builder
 renderTitle level title =
   let
-    underline = T.unpack (T.map (\_ -> level) title)
-    heading = T.unpack title
+    underline = fromText (T.map (\_ -> level) title)
+    heading = fromText title
   in
-    text heading <> linebreak <> text underline
+    heading <> "\n" <> underline
 
