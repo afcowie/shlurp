@@ -4,6 +4,7 @@ module Shlurp.Summary
 (
     outputMilestone,
     outputIssues,
+    concatVertical,
     wrapParagraph
 )
 where
@@ -83,7 +84,7 @@ enclose before after between list =
 
 renderBody :: Maybe Text -> Builder
 renderBody = concatVertical
-    . fmap wrapParagraph
+    . fmap (wrapParagraph __WIDTH__)
     . T.lines
     . fromMaybe "~"
 
@@ -91,21 +92,21 @@ concatVertical :: [Builder] -> Builder
 concatVertical = foldr (<>) "" . intersperse "\n"
 
 
-wrapParagraph :: Text -> Builder
-wrapParagraph = wrapHelper . T.words
+wrapParagraph :: Int -> Text -> Builder
+wrapParagraph margin text = wrapHelper margin (T.words text)
 
-wrapHelper :: [Text] -> Builder
-wrapHelper [] = ""
-wrapHelper [x]  = fromText x
-wrapHelper (x:xs) = snd $ foldl' wrapLine (T.length x, fromText x) xs
+wrapHelper :: Int -> [Text] -> Builder
+wrapHelper _ [] = ""
+wrapHelper _ [x]  = fromText x
+wrapHelper margin (x:xs) = snd $ foldl' (wrapLine margin) (T.length x, fromText x) xs
 
-wrapLine :: (Int, Builder) -> Text -> (Int, Builder)
-wrapLine (pos,builder) word =
+wrapLine :: Int -> (Int, Builder) -> Text -> (Int, Builder)
+wrapLine margin (pos,builder) word =
   let
     width = T.length word
     width' = pos + width + 1
   in
-    if width' > __WIDTH__
+    if width' > margin
         then (width , builder <> "\n" <> fromText word)
         else (width', builder <> " "  <> fromText word)
 
