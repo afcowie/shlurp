@@ -1,6 +1,6 @@
 cabal-version:       >= 1.10
 name:                shlurp
-version:             0.1.5
+version:             0.2.1
 synopsis:            Gather issue history from source control for archiving
 license:             BSD3
 license-file:        LICENCE
@@ -21,7 +21,7 @@ library
                      bytestring,
                      text,
                      vector,
-                     ansi-wl-pprint,
+                     ansi-terminal,
                      github
 
   hs-source-dirs:    lib
@@ -79,6 +79,7 @@ test-suite           check
                      HUnit,
                      hspec,
                      text,
+                     here,
                      shlurp
 
   hs-source-dirs:    src,tests

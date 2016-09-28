@@ -1,7 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 module Main where
 
+import Data.String.Here.Uninterpolated
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as L
@@ -36,10 +38,11 @@ suite = do
             (force (wrapParagraph 0 "This is a test")) `shouldBe` "This\nis\na\ntest"
 
         it "wraps a full text" $ do
-            (force (wrapParagraph 18 sample)) `shouldBe` "\
-\This is a test of\n\
-\the emergency\n\
-\broadcast system.\n\
-\Do not be alarmed.\n\
-\Just panic\
-\"
+            (force (wrapParagraph 18 sample)) `shouldBe` [here|
+This is a test of
+the emergency
+broadcast system.
+Do not be alarmed.
+Just panic
+|]
+

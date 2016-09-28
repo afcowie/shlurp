@@ -34,7 +34,7 @@ outputMilestone = L.putStr . toLazyText . renderMilestone
 
 
 outputIssues :: [Issue] -> IO ()
-outputIssues = L.putStr . toLazyText . concatVertical . fmap renderIssue
+outputIssues = L.putStr . toLazyText . foldr (<>) "\n" . fmap renderIssue
 
 
 renderMilestone :: Milestone -> Builder
@@ -47,7 +47,6 @@ renderMilestone milestone =
         [ title
         , ""
         , description
-        , ""
         ]
 
 
@@ -64,14 +63,13 @@ renderIssue issue =
         , labels
         , ""
         , description
-        , ""
         ]
 
 renderLabel :: Label -> Builder
 renderLabel = fromText . labelName
 
 renderLabels :: Issue -> Builder
-renderLabels = enclose "_(" ")_" ","
+renderLabels = enclose "_(" ")_" ", "
     . fmap renderLabel
     . V.toList . issueLabels
 
@@ -89,9 +87,14 @@ renderBody = concatVertical
     . fromMaybe "~"
 
 concatVertical :: [Builder] -> Builder
-concatVertical = foldr (<>) "" . intersperse "\n"
+concatVertical = foldr (<>) "\n" . intersperse "\n"
 
-
+--
+-- | Often the input text represents a paragraph, but does not have any
+-- internal newlines (representing word wrapping). This function takes a line
+-- of text and inserts newlines to simulate such folding. It also appends a
+-- trailing newline to finish the paragraph.
+--
 wrapParagraph :: Int -> Text -> Builder
 wrapParagraph margin text = wrapHelper margin (T.words text)
 
