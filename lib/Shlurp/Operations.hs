@@ -22,7 +22,7 @@ listIssues :: GitHub (Vector Issue)
 listIssues = do
     config <- get
     let token = configToken config
-    let request = issuesForRepoR (configOwner config) (configRepo config) [] Nothing
+    let request = issuesForRepoR (configOwner config) (configRepo config) [Open,OnlyClosed] Nothing
 
     possibleIssues <- liftIO $ executeRequest token request
 
